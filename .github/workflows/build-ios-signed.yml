@@ -1,0 +1,66 @@
+name: Build Jump Pilot (IPA signée, compte Apple payant)
+
+# Variante avancée : compile et signe l'IPA directement dans le cloud à partir
+# d'un certificat et d'un profil de provisioning stockés en secrets GitHub.
+# Nécessite un compte Apple Developer payant (99 USD/an) et la création
+# préalable des secrets ci-dessous. Les utilisateurs d'un compte gratuit
+# doivent plutôt utiliser build-ios.yml + Sideloadly.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer le certificat (.p12)
+        env:
+          CERT_BASE64: ${{ secrets.APPLE_CERT_BASE64 }}
+          CERT_PASSWORD: ${{ secrets.APPLE_CERT_PASSWORD }}
+        run: |
+          set -euo pipefail
+          echo "$CERT_BASE64" | base64 --decode > /tmp/cert.p12
+          security create-keychain -p "" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "" build.keychain
+          security import /tmp/cert.p12 -k build.keychain -P "$CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "" build.keychain
+
+      - name: Installer le profil de provisioning
+        env:
+          PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "$PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
+
+      - name: Compiler et signer
+        working-directory: JumpPilot
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          BUNDLE_ID: fr.raphael.JumpPilot
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project JumpPilot.xcodeproj \
+            -scheme JumpPilot \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/DerivedData \
+            -archivePath build/JumpPilot.xcarchive \
+            archive
+          xcodebuild -exportArchive \
+            -archivePath build/JumpPilot.xcarchive \
+            -exportPath build/export \
+            -exportOptionsPlist ../Scripts/ExportOptions.plist
+
+      - name: Publier l'IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: JumpPilot-signed
+          path: JumpPilot/build/export/*.ipa
+          retention-days: 30
