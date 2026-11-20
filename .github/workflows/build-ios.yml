@@ -1,0 +1,70 @@
+name: Build Jump Pilot (IPA non signée)
+
+# Compile l'application iOS sur un runner macOS gratuit de GitHub Actions,
+# puis publie l'IPA comme artefact téléchargeable (30 jours) et, si un tag
+# "v*" est poussé, comme asset d'une Release GitHub.
+#
+# L'IPA produite n'est pas signée : elle est destinée à être signée et
+# installée sur l'iPhone depuis Windows avec Sideloadly (voir
+# INSTALLER_DEPUIS_WINDOWS.md).
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Choisir Xcode
+        run: |
+          ls /Applications | grep -i xcode || true
+          sudo xcode-select -s /Applications/Xcode.app 2>/dev/null || true
+          xcodebuild -version
+
+      - name: Compiler pour appareil (non signé)
+        working-directory: JumpPilot
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project JumpPilot.xcodeproj \
+            -scheme JumpPilot \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            VALIDATE_PRODUCT=NO \
+            build
+
+      - name: Empaqueter l'IPA
+        working-directory: JumpPilot
+        run: |
+          set -euo pipefail
+          APP="build/DerivedData/Build/Products/Release-iphoneos/JumpPilot.app"
+          test -d "$APP"
+          rm -rf Payload && mkdir Payload
+          cp -R "$APP" Payload/
+          zip -r JumpPilot-unsigned.ipa Payload
+          ls -lh JumpPilot-unsigned.ipa
+
+      - name: Publier l'artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: JumpPilot-unsigned
+          path: JumpPilot/JumpPilot-unsigned.ipa
+          retention-days: 30
+
+      - name: Créer la Release (sur tag v*)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: JumpPilot/JumpPilot-unsigned.ipa
+          generate_release_notes: true
