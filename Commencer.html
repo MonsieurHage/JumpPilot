@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jump Pilot — Installation</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#eaf1f4;background:#090e15;line-height:1.65}
+*{box-sizing:border-box}body{margin:0}main{max-width:960px;margin:auto;padding:56px 28px 80px}h1,h2,h3,p{margin-top:0}
+.brand{letter-spacing:.2em;font-weight:750;font-size:13px;color:#7bf5b8;margin-bottom:25px}h1{font-size:clamp(36px,6vw,64px);letter-spacing:-.045em;line-height:1.06;margin-bottom:22px}h2{font-size:27px;letter-spacing:-.02em;margin:42px 0 16px}h3{font-size:18px;margin-bottom:5px}.intro{font-size:20px;max-width:700px;color:#a8b9c8}.pill{display:inline-block;padding:5px 12px;border:1px solid #34483e;border-radius:30px;color:#7bf5b8;font-size:13px;margin:0 8px 8px 0}.card{padding:24px;border:1px solid #24303d;border-radius:20px;background:#111923}.requirement{border-left:4px solid #7bf5b8;margin:30px 0}.steps{counter-reset:step;padding:0;list-style:none}.steps li{position:relative;padding:18px 18px 18px 62px;background:#111923;border:1px solid #24303d;border-radius:15px;margin:12px 0}.steps li:before{counter-increment:step;content:counter(step);position:absolute;top:20px;left:20px;width:27px;height:27px;display:grid;place-items:center;border-radius:50%;color:#09120f;background:#7bf5b8;font-weight:750}.muted,small{color:#a5b5c3}code{background:#26313d;padding:2px 6px;border-radius:5px;font-size:14px}a{color:#7bf5b8;text-underline-offset:3px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.grid .card{padding:20px}.note{font-size:14px;color:#a5b5c3}.footer{border-top:1px solid #24303d;padding-top:20px;margin-top:42px;font-size:13px;color:#8599aa}li p{margin-bottom:0}.stop{color:#ff9191;font-weight:700}@media(max-width:660px){.grid{grid-template-columns:1fr}main{padding:32px 20px}}
+</style>
+<main>
+<div class="brand">JUMP PILOT / VERSION 1.0</div>
+<h1>Votre Parrot Jumping.<br>Votre iPhone aux commandes.</h1>
+<p class="intro">Une application native pour piloter les Jumping Sumo, Night et Race, avec joystick tactile et retour caméra.</p>
+<span class="pill">iPhone 12 · iOS 16 et ultérieur</span><span class="pill">Connexion Wi-Fi locale</span><span class="pill">Fonctionne sans Internet</span>
+<div class="card requirement"><h3>Pour installer : un Mac avec Xcode (ou un PC Windows)</h3><p>Ce dossier contient le projet iOS à compiler et signer avec votre compte Apple. Sur Mac, suivez les étapes ci-dessous. Sur Windows, compilez l’IPA dans le cloud via GitHub Actions puis signez et installez avec Sideloadly : voir <a href="INSTALLER_DEPUIS_WINDOWS.md">INSTALLER_DEPUIS_WINDOWS.md</a>. La version de Xcode doit prendre en charge l’iOS installé sur votre iPhone.</p><p class="note">La compilation iOS et les essais sur un robot physique restent à valider. Le moteur réseau a été testé avec un simulateur.</p></div>
+<div class="grid"><div class="card"><h3>Conduire</h3><p class="muted">Avancer, reculer et tourner avec une vitesse réglable.</p></div><div class="card"><h3>Explorer</h3><p class="muted">Afficher la caméra du robot et sa batterie.</p></div><div class="card"><h3>Sauter</h3><p class="muted">Demander un saut haut ou long, puis reprendre la conduite.</p></div></div>
+<h2>1. Installer l’application</h2>
+<ol class="steps">
+<li><strong>Ouvrir le projet sur le Mac.</strong><p>Installez Xcode, puis ouvrez <code>JumpPilot.xcodeproj</code> dans ce dossier.</p></li>
+<li><strong>Choisir votre compte Apple.</strong><p>Ajoutez-le dans Xcode &gt; Settings &gt; Apple Accounts. Dans TARGETS &gt; JumpPilot &gt; Signing &amp; Capabilities, activez Automatically manage signing et sélectionnez votre Team. Modifiez le Bundle Identifier si Xcode demande un identifiant unique.</p></li>
+<li><strong>Brancher l’iPhone.</strong><p>Reliez-le au Mac, déverrouillez-le et acceptez la confiance envers cet ordinateur. Activez le Mode développeur si iOS le demande.</p></li>
+<li><strong>Lancer l’installation.</strong><p>Choisissez votre iPhone comme destination dans Xcode et cliquez sur ▶ Run. L’icône Jump Pilot apparaît sur le téléphone.</p></li>
+</ol>
+<p class="note">Avec une Personal Team gratuite, le profil de signature expire après sept jours. Relancez Run depuis Xcode pour renouveler l’installation. <a href="https://developer.apple.com/help/account/basics/about-your-developer-account/">Conditions Apple</a>.</p>
+<h2>2. Connecter le robot</h2>
+<ol class="steps">
+<li><strong>Allumer le Parrot Jumping.</strong><p>Fermez FreeFlight et les autres contrôleurs du robot.</p></li>
+<li><strong>Rejoindre son réseau Wi-Fi.</strong><p>Sur l’iPhone, ouvrez Réglages &gt; Wi-Fi et choisissez le réseau Jumping… Restez connecté même si le réseau n’offre pas Internet.</p></li>
+<li><strong>Ouvrir Jump Pilot.</strong><p>Touchez Connexion puis Se connecter. Autorisez l’accès au réseau local. L’adresse habituelle est <code>192.168.2.1</code>. Si la première tentative échoue pendant l’autorisation iOS, réessayez.</p></li>
+<li><strong>Activer les commandes.</strong><p>Quand l’application indique Connecté, touchez Activer. La vitesse initiale est limitée à 35 %.</p></li>
+</ol>
+<h2>3. Prendre les commandes</h2>
+<div class="card"><p>Le joystick commande les roues : <strong>haut pour avancer, bas pour reculer, gauche et droite pour tourner</strong>. Relâchez-le pour envoyer une consigne d’arrêt. Le curseur règle la vitesse maximale.</p><p><span class="stop">STOP</span> annule les consignes et désactive les commandes. Réactivez-les pour repartir. Les boutons Saut haut et Saut long demandent le mouvement correspondant ; un délai de trois secondes sépare les demandes.</p><p class="note">Gardez le robot en vue et utilisez un espace dégagé. Un saut déjà lancé ne peut pas être interrompu en l’air. Une rupture radio empêche de garantir la réception d’un ordre d’arrêt.</p></div>
+<h2>Si la connexion échoue</h2>
+<p>Vérifiez le Wi-Fi du drone et Réglages &gt; Confidentialité et sécurité &gt; Réseau local &gt; Jump Pilot. Fermez FreeFlight, puis réessayez. Après une perte de liaison, reconnectez-vous et réactivez les commandes.</p>
+<p>Le guide complet se trouve dans <strong>LIRE_MOI.md</strong>. Les vérifications et les références techniques figurent dans <strong>VALIDATION.md</strong> et <strong>SOURCES.md</strong>.</p>
+<div class="footer">Application indépendante pour la famille Parrot Jumping. Connexion locale, sans collecte de données. Parrot et les noms de modèles appartiennent à leurs titulaires.</div>
+</main>
+</html>
