@@ -1,0 +1,13 @@
+# Build
+build/
+DerivedData/
+Payload/
+*.ipa
+*.xcarchive
+*.dSYM
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
