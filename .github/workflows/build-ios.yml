@@ -28,7 +28,6 @@ jobs:
           xcodebuild -version
 
       - name: Compiler pour appareil (non signé)
-        working-directory: JumpPilot
         run: |
           set -euo pipefail
           xcodebuild \
@@ -45,7 +44,6 @@ jobs:
             build
 
       - name: Empaqueter l'IPA
-        working-directory: JumpPilot
         run: |
           set -euo pipefail
           APP="build/DerivedData/Build/Products/Release-iphoneos/JumpPilot.app"
@@ -59,12 +57,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: JumpPilot-unsigned
-          path: JumpPilot/JumpPilot-unsigned.ipa
+          path: JumpPilot-unsigned.ipa
           retention-days: 30
 
       - name: Créer la Release (sur tag v*)
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: JumpPilot/JumpPilot-unsigned.ipa
+          files: JumpPilot-unsigned.ipa
           generate_release_notes: true
