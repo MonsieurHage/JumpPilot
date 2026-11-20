@@ -1,17 +1,11 @@
 name: Build Jump Pilot (IPA signée, compte Apple payant)
 
-# Variante avancée : compile et signe l'IPA directement dans le cloud à partir
-# d'un certificat et d'un profil de provisioning stockés en secrets GitHub.
-# Nécessite un compte Apple Developer payant (99 USD/an) et la création
-# préalable des secrets ci-dessous. Les utilisateurs d'un compte gratuit
-# doivent plutôt utiliser build-ios.yml + Sideloadly.
-
 on:
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -38,12 +32,29 @@ jobs:
           echo "$PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
 
       - name: Compiler et signer
-        working-directory: JumpPilot
         env:
           TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          BUNDLE_ID: fr.raphael.JumpPilot
         run: |
           set -euo pipefail
+          cat > /tmp/ExportOptions.plist <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>method</key>
+    <string>development</string>
+    <key>teamID</key>
+    <string>${TEAM_ID}</string>
+    <key>signingStyle</key>
+    <string>manual</string>
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>fr.raphael.JumpPilot</key>
+        <string>JumpPilot Dev Profile</string>
+    </dict>
+</dict>
+</plist>
+EOF
           xcodebuild \
             -project JumpPilot.xcodeproj \
             -scheme JumpPilot \
@@ -56,11 +67,11 @@ jobs:
           xcodebuild -exportArchive \
             -archivePath build/JumpPilot.xcarchive \
             -exportPath build/export \
-            -exportOptionsPlist ../Scripts/ExportOptions.plist
+            -exportOptionsPlist /tmp/ExportOptions.plist
 
       - name: Publier l'IPA
         uses: actions/upload-artifact@v4
         with:
           name: JumpPilot-signed
-          path: JumpPilot/build/export/*.ipa
+          path: build/export/*.ipa
           retention-days: 30
